@@ -18,11 +18,12 @@
             <th>Tahun</th>
             <th>Durasi</th>
             <th>Rating</th>
+            <th>Aksi</th>
         </tr>
 
         <?php if (empty($films)): ?>
             <tr>
-                <td colspan="7">Belum ada data film.</td>
+                <td colspan="8">Belum ada data film.</td>
             </tr>
         <?php endif; ?>
 
@@ -35,6 +36,9 @@
                 <td><?= htmlspecialchars($f['tahun_rilis']) ?></td>
                 <td><?= htmlspecialchars($f['durasi']) ?> menit</td>
                 <td><?= htmlspecialchars($f['rating']) ?></td>
+                <td>
+                    <a href="index.php?page=film&action=edit&id=<?= (int) $f['id'] ?>">Edit</a>
+                </td>
             </tr>
         <?php endforeach; ?>
     </table>

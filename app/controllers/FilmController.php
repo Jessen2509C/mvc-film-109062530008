@@ -36,6 +36,48 @@ class FilmController
         exit;
     }
 
+        public function edit(): void
+    {
+        $id   = (int) ($_GET['id'] ?? 0);
+        $film = $this->model->findById($id);
+
+        if (!$film) {
+            http_response_code(404);
+            exit('Data film tidak ditemukan.');
+        }
+
+        $errors = [];
+        require __DIR__ . '/../views/film/edit.php';
+    }
+
+    public function update(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?page=film');
+            exit;
+        }
+
+        $id = (int) ($_POST['id'] ?? 0);
+
+        if (!$this->model->findById($id)) {
+            http_response_code(404);
+            exit('Data film tidak ditemukan.');
+        }
+
+        [$data, $errors] = $this->validateInput($_POST);
+
+        if (!empty($errors)) {
+            // Tampilkan form lagi dengan isian yang sudah diketik pengguna
+            $film = ['id' => $id] + $data;
+            require __DIR__ . '/../views/film/edit.php';
+            return;
+        }
+
+        $this->model->update($id, $data);
+        header('Location: index.php?page=film');
+        exit;
+    }
+
     private function validateInput(array $input): array
     {
         $data = [
