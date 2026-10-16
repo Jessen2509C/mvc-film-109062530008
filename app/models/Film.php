@@ -62,4 +62,10 @@ class Film
             ':rating'      => $data['rating']
         ]);
     }
+    
+    public function delete(int $id): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM film WHERE id = :id');
+        return $stmt->execute([':id' => $id]);
+    }
 }

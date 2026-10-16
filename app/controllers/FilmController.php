@@ -78,6 +78,20 @@ class FilmController
         exit;
     }
 
+    public function delete(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?page=film');
+            exit;
+        }
+
+        $id = (int) ($_POST['id'] ?? 0);
+        $this->model->delete($id);
+
+        header('Location: index.php?page=film');
+        exit;
+    }
+
     private function validateInput(array $input): array
     {
         $data = [
