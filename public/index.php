@@ -16,8 +16,10 @@ if ($page !== 'film') {
 }
 
 match ($action) {
-    'index' => $controller->index(),
-    default => (function () {
+    'index'  => $controller->index(),
+    'create' => $controller->create(),
+    'store'  => $controller->store(),
+    default  => (function () {
         http_response_code(404);
         exit('Action tidak ditemukan.');
     })()
