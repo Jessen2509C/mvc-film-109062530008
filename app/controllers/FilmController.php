@@ -6,6 +6,11 @@ class FilmController
     public function index(): void
     {
         $films = $this->model->getAll();
+
+        // Ambil flash message lalu hapus agar hanya tampil sekali
+        $flash = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+
         require __DIR__ . '/../views/film/index.php';
     }
 
@@ -18,10 +23,7 @@ class FilmController
 
     public function store(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php?page=film');
-            exit;
-        }
+        $this->requirePost();
 
         [$data, $errors] = $this->validateInput($_POST);
 
@@ -31,12 +33,18 @@ class FilmController
             return;
         }
 
-        $this->model->insert($data);
-        header('Location: index.php?page=film');
-        exit;
+        try {
+            $this->model->insert($data);
+            $this->setFlash('success', 'Film "' . $data['judul'] . '" berhasil ditambahkan.');
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            $this->setFlash('error', 'Gagal menyimpan data film. Silakan coba lagi.');
+        }
+
+        $this->redirectToList();
     }
 
-        public function edit(): void
+    public function edit(): void
     {
         $id   = (int) ($_GET['id'] ?? 0);
         $film = $this->model->findById($id);
@@ -52,42 +60,73 @@ class FilmController
 
     public function update(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php?page=film');
-            exit;
-        }
+        $this->requirePost();
 
         $id = (int) ($_POST['id'] ?? 0);
 
         if (!$this->model->findById($id)) {
-            http_response_code(404);
-            exit('Data film tidak ditemukan.');
+            $this->setFlash('error', 'Data film tidak ditemukan.');
+            $this->redirectToList();
         }
 
         [$data, $errors] = $this->validateInput($_POST);
 
         if (!empty($errors)) {
-            // Tampilkan form lagi dengan isian yang sudah diketik pengguna
             $film = ['id' => $id] + $data;
             require __DIR__ . '/../views/film/edit.php';
             return;
         }
 
-        $this->model->update($id, $data);
-        header('Location: index.php?page=film');
-        exit;
+        try {
+            $this->model->update($id, $data);
+            $this->setFlash('success', 'Film "' . $data['judul'] . '" berhasil diperbarui.');
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            $this->setFlash('error', 'Gagal memperbarui data film. Silakan coba lagi.');
+        }
+
+        $this->redirectToList();
     }
 
     public function delete(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php?page=film');
-            exit;
+        $this->requirePost();
+
+        $id   = (int) ($_POST['id'] ?? 0);
+        $film = $this->model->findById($id);
+
+        if (!$film) {
+            $this->setFlash('error', 'Data film tidak ditemukan atau sudah dihapus.');
+            $this->redirectToList();
         }
 
-        $id = (int) ($_POST['id'] ?? 0);
-        $this->model->delete($id);
+        try {
+            $this->model->delete($id);
+            $this->setFlash('success', 'Film "' . $film['judul'] . '" berhasil dihapus.');
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            $this->setFlash('error', 'Gagal menghapus data film. Silakan coba lagi.');
+        }
 
+        $this->redirectToList();
+    }
+
+    // ---------- Helper ----------
+
+    private function requirePost(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirectToList();
+        }
+    }
+
+    private function setFlash(string $type, string $message): void
+    {
+        $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+    }
+
+    private function redirectToList(): never
+    {
         header('Location: index.php?page=film');
         exit;
     }
@@ -114,14 +153,12 @@ class FilmController
 
         $errors = [];
 
-        // 1. Field wajib
         foreach ($labels as $field => $label) {
             if ($data[$field] === '') {
                 $errors[] = "$label wajib diisi.";
             }
         }
 
-        // 2. Aturan khusus (hanya dicek jika field tidak kosong)
         if ($data['judul'] !== '' && mb_strlen($data['judul']) > 150) {
             $errors[] = 'Judul maksimal 150 karakter.';
         }

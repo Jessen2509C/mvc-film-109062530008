@@ -1,4 +1,4 @@
-<?php /** @var array $films */ ?>
+<?php /** @var array $films */ /** @var array|null $flash */ ?> ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>

@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../app/models/Film.php';
 require __DIR__ . '/../app/controllers/FilmController.php';
