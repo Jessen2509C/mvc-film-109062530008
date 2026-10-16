@@ -53,3 +53,15 @@ pola Model-View-Controller pada PHP Native dengan PDO dan workflow Git.
 
 Lihat tahapan pengembangan dengan:
 `git log --oneline --graph --decorate`
+
+## Hasil Git Log
+git log --oneline --graph --decorate
+* 9b6e15d (HEAD -> main) docs: add installation guide and project documentation
+* 227a39e feat: add success and error flash messages
+* 0528f9d feat: add delete film feature
+* 84a74aa feat: add edit and update film feature
+* 83b4ceb feat: add create film feature with validation
+* bd66993 feat: add film list page
+* 96a6f91 feat: add PDO database connection
+* 2ccf61a feat: add database schema and seed data
+* 712f167 chore: initialize mvc project
